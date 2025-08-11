@@ -17,7 +17,7 @@
 - Sử dụng các mô hình trả bounding box cho các vật thể cần được phân loại. 
 - Phân đoạn vùng xe qua thresholding/adaptive thresholding -> morphology để tạo thành vùng liên tục
 - Gợi ý thực tế: dùng DL detector + postprocess bằng morphology/tracking (để ổn định) là hướng tốt nhất.
-- Loại trừ false positive: Tránh detect những người đang đi bộ vào thuộc diện đang trên xe (Có thể sử dụng [ByteTrack](https://github.com/FoundationVision/ByteTrack)/ [DeepSORT](https://github.com/nwojke/deep_sort) để gắn ID qua frame và set thời gian trên xe nếu overlap liên tụctục)
+- Loại trừ false positive: Tránh detect những người đang đi bộ vào thuộc diện đang trên xe (Có thể sử dụng [ByteTrack](https://github.com/FoundationVision/ByteTrack)/ [DeepSORT](https://github.com/nwojke/deep_sort) để gắn ID qua frame và set thời gian trên xe nếu overlap liên tục)
 
 
 ## 2. Các implement extra (có thể thực hiện thêm)
@@ -29,3 +29,11 @@
 
 ### b. Tracking ổn định kết quả:
 
+- Dùng tracker (ByteTrack / DeepSORT) để giữ ID vehicle & person, cho phép đếm, tần suất xuất hiện, và giúp tránh nhiễu tạm thời.
+- Có thể loại bỏ background tĩnh để tăng hiệu ứng phát hiện xe chuyển động (sử dụng background subtraction)
+- Ánh sáng không đều / bóng / ban đêm: dùng adaptive thresholding / histogram equalization; nếu ban đêm nặng, cân nhắc IR/thermal camera
+- Biến thể kích thước & góc nhìn: DL detector + multi-scale anchor/predictor. (slides cung cấp nền tảng xử lý ảnh nhưng DL là cần thiết để robust).
+- Nhiễu & mưa: dùng spatial filters (median) và restoration nếu cần (slides về restoration). 
+## 3. Dữ liệu và huấn luyện:
+-  cần dataset có bounding boxes cho cả vehicle classes và people; ideal: có ảnh giao thông VN (góc camera, xe máy phổ biến). Bạn có thể dùng COCO (cơ bản) → sau đó fine-tune bằng dữ liệu thực tế (camera của bạn).
+- Gắn nhãn: vehicle_type, person, rider_on_vehicle (optionally). Tạo annotation cho overlap cases -> dùng để huấn luyện classifier post-process nếu overlap rule gây nhiều lỗi.
